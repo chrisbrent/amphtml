@@ -1,39 +1,23 @@
-     size   |       gzip   |   file
-      ---   |        ---   |   ---
-387.52 kB   |   85.25 kB   |   amp.js
-136.79 kB   |   37.72 kB   |   v0.js
-  9.77 kB   |     3.6 kB   |   v0/amp-anim-0.1.js
- 35.77 kB   |    9.02 kB   |   v0/amp-anim-0.1.max.js
-  9.77 kB   |     3.6 kB   |   v0/amp-anim-latest.js
-     7 kB   |    2.81 kB   |   v0/amp-audio-0.1.js
- 24.32 kB   |    6.61 kB   |   v0/amp-audio-0.1.max.js
-     7 kB   |    2.81 kB   |   v0/amp-audio-latest.js
- 44.27 kB   |   11.06 kB   |   v0/amp-carousel-0.1.js
-140.91 kB   |   27.97 kB   |   v0/amp-carousel-0.1.max.js
- 44.27 kB   |   11.06 kB   |   v0/amp-carousel-latest.js
-  6.78 kB   |    2.69 kB   |   v0/amp-fit-text-0.1.js
- 20.69 kB   |    5.67 kB   |   v0/amp-fit-text-0.1.max.js
-  6.78 kB   |    2.69 kB   |   v0/amp-fit-text-latest.js
-  8.31 kB   |    3.34 kB   |   v0/amp-iframe-0.1.js
- 26.84 kB   |    7.42 kB   |   v0/amp-iframe-0.1.max.js
-  8.31 kB   |    3.34 kB   |   v0/amp-iframe-latest.js
- 66.83 kB   |   16.51 kB   |   v0/amp-image-lightbox-0.1.js
-210.11 kB   |   42.84 kB   |   v0/amp-image-lightbox-0.1.max.js
- 66.83 kB   |   16.51 kB   |   v0/amp-image-lightbox-latest.js
-  5.86 kB   |    2.41 kB   |   v0/amp-instagram-0.1.js
- 21.35 kB   |    5.96 kB   |   v0/amp-instagram-0.1.max.js
-  5.86 kB   |    2.41 kB   |   v0/amp-instagram-latest.js
- 44.15 kB   |   10.61 kB   |   v0/amp-lightbox-0.1.js
-137.25 kB   |    27.1 kB   |   v0/amp-lightbox-0.1.max.js
- 44.15 kB   |   10.61 kB   |   v0/amp-lightbox-latest.js
- 18.33 kB   |       6 kB   |   v0/amp-slides-0.1.js
- 66.13 kB   |   15.44 kB   |   v0/amp-slides-0.1.max.js
- 18.33 kB   |       6 kB   |   v0/amp-slides-latest.js
- 10.38 kB   |    4.02 kB   |   v0/amp-twitter-0.1.js
- 36.33 kB   |    9.16 kB   |   v0/amp-twitter-0.1.max.js
- 10.38 kB   |    4.02 kB   |   v0/amp-twitter-latest.js
-  5.84 kB   |     2.4 kB   |   v0/amp-youtube-0.1.js
- 20.85 kB   |    5.79 kB   |   v0/amp-youtube-0.1.max.js
-  5.84 kB   |     2.4 kB   |   v0/amp-youtube-latest.js
-125.48 kB   |   31.56 kB   |   current/integration.js
- 50.36 kB   |      17 kB   |   current-min/f.js
+      max   |         min   |       gzip   |   file
+      ---   |         ---   |        ---   |   ---
+467.94 kB   |   152.61 kB   |   40.99 kB   |   v0.js / amp.js
+ 99.25 kB   |    30.04 kB   |    9.12 kB   |   v0/amp-analytics-0.1.js
+ 38.32 kB   |    10.42 kB   |     3.9 kB   |   v0/amp-anim-0.1.js
+ 27.19 kB   |     7.71 kB   |     3.1 kB   |   v0/amp-audio-0.1.js
+ 24.32 kB   |        7 kB   |    2.78 kB   |   v0/amp-brightcove-0.1.js
+192.41 kB   |    62.04 kB   |   15.34 kB   |   v0/amp-carousel-0.1.js
+    22 kB   |     7.04 kB   |    2.82 kB   |   v0/amp-fit-text-0.1.js
+  91.8 kB   |    27.86 kB   |    7.96 kB   |   v0/amp-font-0.1.js
+  45.1 kB   |    14.39 kB   |    5.31 kB   |   v0/amp-iframe-0.1.js
+216.03 kB   |    68.15 kB   |   17.17 kB   |   v0/amp-image-lightbox-0.1.js
+ 23.22 kB   |     6.32 kB   |    2.61 kB   |   v0/amp-instagram-0.1.js
+ 21.56 kB   |     6.96 kB   |    3.04 kB   |   v0/amp-install-serviceworker-0.1.js
+139.77 kB   |    44.21 kB   |   10.92 kB   |   v0/amp-lightbox-0.1.js
+ 59.73 kB   |     18.3 kB   |    6.14 kB   |   v0/amp-list-0.1.js
+131.67 kB   |    42.86 kB   |   14.37 kB   |   v0/amp-mustache-0.1.js
+ 48.16 kB   |     19.6 kB   |    6.36 kB   |   v0/amp-pinterest-0.1.js
+113.05 kB   |    33.27 kB   |    9.69 kB   |   v0/amp-slides-0.1.js
+ 57.32 kB   |    16.29 kB   |    5.89 kB   |   v0/amp-twitter-0.1.js
+ 23.05 kB   |     6.42 kB   |    2.63 kB   |   v0/amp-vine-0.1.js
+ 23.45 kB   |     6.59 kB   |    2.71 kB   |   v0/amp-youtube-0.1.js
+ 37.63 kB   |    11.59 kB   |    4.32 kB   |   current-min/f.js / current/integration.js

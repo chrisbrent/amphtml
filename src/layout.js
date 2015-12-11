@@ -36,12 +36,64 @@ export const Layout = {
 
 
 /**
+ * CSS Length type. E.g. "1px" or "20vh".
+ * @typedef {string}
+ */
+let Length;
+
+
+/**
+ * @typedef {{
+ *   width: string,
+ *   height: string
+ * }}
+ */
+let Dimensions;
+
+
+/**
+ * The set of elements with natural dimensions, that is, elements
+ * which have a known dimension either based on their value specified here,
+ * or, if the value is null, a dimension specific to the browser.
+ * `hasNaturalDimensions` checks for membership in this set.
+ * `getNaturalDimensions` determines the dimensions for an element in the
+ *    set and caches it.
+ * @type {!Object<string, ?Dimensions>}
+ * @private  Visible for testing only!
+ */
+export const naturalDimensions_ = {
+  'AMP-PIXEL': {width: '1px', height: '1px'},
+  'AMP-ANALYTICS': {width: '1px', height: '1px'},
+  // TODO(dvoytenko): audio should have width:auto.
+  'AMP-AUDIO': null
+};
+
+
+/**
+ * Elements that the progess can be shown for. This set has to be externalized
+ * since the element's implementation may not be downloaded yet.
+ * @enum {boolean}
+ * @private  Visible for testing only!
+ */
+export const LOADING_ELEMENTS_ = {
+  'AMP-ANIM': true,
+  'AMP-BRIGHTCOVE': true,
+  'AMP-IFRAME': true,
+  'AMP-IMG': true,
+  'AMP-INSTAGRAM': true,
+  'AMP-LIST': true,
+  'AMP-PINTEREST': true,
+  'AMP-VIDEO': true
+};
+
+
+/**
  * @param {string} s
  * @return {Layout|undefined} Returns undefined in case of failure to parse
  *   the layout string.
  */
 export function parseLayout(s) {
-  for (let k in Layout) {
+  for (const k in Layout) {
     if (Layout[k] == s) {
       return Layout[k];
     }
@@ -78,16 +130,9 @@ export function isLayoutSizeDefined(layout) {
  * @return {boolean}
  */
 export function isInternalElement(tag) {
-  let tagName = (typeof tag == 'string') ? tag : tag.tagName;
+  const tagName = (typeof tag == 'string') ? tag : tag.tagName;
   return tagName && tagName.toLowerCase().indexOf('i-') == 0;
 }
-
-
-/**
- * CSS Length type. E.g. "1px" or "20vh".
- * @typedef {string}
- */
-var Length;
 
 
 /**
@@ -132,7 +177,7 @@ export function assertLength(length) {
  */
 export function getLengthUnits(length) {
   assertLength(length);
-  let m = assert(length.match(/[a-z]+/i),
+  const m = assert(length.match(/[a-z]+/i),
       'Failed to read units from %s', length);
   return m[0];
 }
@@ -146,30 +191,6 @@ export function getLengthUnits(length) {
 export function getLengthNumeral(length) {
   return parseFloat(length);
 }
-
-
-/**
- * @typedef {{
- *   width: number,
- *   height: number
- * }}
- */
-var Dimensions;
-
-/**
- * Set or cached browser natural dimensions for elements. The tagname
- * initialized here will return true `hasNaturalDimensions`, even if yet to be
- * calculated. Exported for testing.
- *
- * Visible for testing only!
- *
- * @type {!Object<string, Dimensions>}
- * @private
- */
-export const naturalDimensions_ = {
-  'AMP-PIXEL': {width: 1, height: 1},
-  'AMP-AUDIO': null
-};
 
 
 /**
@@ -187,24 +208,39 @@ export function hasNaturalDimensions(tagName) {
 /**
  * Determines the default dimensions for an element which could vary across
  * different browser implementations, like <audio> for instance.
+ * This operation can only be completed for an element whitelisted by
+ * `hasNaturalDimensions`.
  * @param {string} tagName The element tag name.
  * @return {Dimensions}
  */
 export function getNaturalDimensions(tagName) {
   tagName = tagName.toUpperCase();
+  assert(naturalDimensions_[tagName] !== undefined);
   if (!naturalDimensions_[tagName]) {
-    let naturalTagName = tagName.replace(/^AMP\-/, '');
-    let temp = document.createElement(naturalTagName);
+    const naturalTagName = tagName.replace(/^AMP\-/, '');
+    const temp = document.createElement(naturalTagName);
     // For audio, should no-op elsewhere.
     temp.controls = true;
     temp.style.position = 'absolute';
     temp.style.visibility = 'hidden';
     document.body.appendChild(temp);
     naturalDimensions_[tagName] = {
-      width: temp.offsetWidth,
-      height: temp.offsetHeight
+      width: (temp./*OK*/offsetWidth || 1) + 'px',
+      height: (temp./*OK*/offsetHeight || 1) + 'px'
     };
     document.body.removeChild(temp);
   }
   return naturalDimensions_[tagName];
+}
+
+
+/**
+ * Whether the loading can be shown for the specified elemeent. This set has
+ * to be externalized since the element's implementation may not be
+ * downloaded yet.
+ * @param {string} tagName The element tag name.
+ * @return {boolean}
+ */
+export function isLoadingAllowed(tagName) {
+  return LOADING_ELEMENTS_[tagName.toUpperCase()] || false;
 }

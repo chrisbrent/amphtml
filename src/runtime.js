@@ -15,11 +15,15 @@
  */
 
 import {BaseElement} from './base-element';
+import {BaseTemplate, registerExtendedTemplate} from './template';
 import {assert} from './asserts';
 import {getMode} from './mode';
 import {installStyles} from './styles';
+import {isExperimentOn, toggleExperiment} from './experiments';
+import {performanceFor} from './performance';
 import {registerElement} from './custom-element';
 import {registerExtendedElement} from './extended-element';
+import {resourcesFor} from './resources';
 import {viewerFor} from './viewer';
 import {viewportFor} from './viewport';
 
@@ -41,9 +45,10 @@ export function adopt(global) {
   global.AMP_TAG = true;
   // If there is already a global AMP object we assume it is an array
   // of functions
-  let preregisteredElements = global.AMP || [];
+  const preregisteredElements = global.AMP || [];
 
   global.AMP = {};
+
   /**
    * Registers an extended element and installs its styles.
    * @param {string} name
@@ -53,7 +58,7 @@ export function adopt(global) {
    *     CSS file associated with the element.
    */
   global.AMP.registerElement = function(name, implementationClass, opt_css) {
-    var register = function() {
+    const register = function() {
       registerExtendedElement(global, name, implementationClass);
       elementsForTesting.push({
         name: name,
@@ -65,16 +70,27 @@ export function adopt(global) {
     } else {
       register();
     }
-
   };
 
   /** @const */
   global.AMP.BaseElement = BaseElement;
 
   /** @const */
+  global.AMP.BaseTemplate = BaseTemplate;
+
+  /**
+   * Registers an extended template.
+   * @param {string} name
+   * @param {!Function} implementationClass
+   */
+  global.AMP.registerTemplate = function(name, implementationClass) {
+    registerExtendedTemplate(global, name, implementationClass);
+  };
+
+  /** @const */
   global.AMP.assert = assert;
 
-  let viewer = viewerFor(global);
+  const viewer = viewerFor(global);
 
   /** @const */
   global.AMP.viewer = viewer;
@@ -82,9 +98,15 @@ export function adopt(global) {
   if (getMode().development) {
     /** @const */
     global.AMP.toggleRuntime = viewer.toggleRuntime.bind(viewer);
+    /** @const */
+    global.AMP.resources = resourcesFor(global);
+    /** @const */
+    global.AMP.isExperimentOn = isExperimentOn.bind(null, global);
+    /** @const */
+    global.AMP.toggleExperiment = toggleExperiment.bind(null, global);
   }
 
-  let viewport = viewportFor(global);
+  const viewport = viewportFor(global);
 
   /** @const */
   global.AMP.viewport = {};
@@ -101,9 +123,20 @@ export function adopt(global) {
     fn(global.AMP);
   };
 
+  /**
+   * Sets the function to forward tick events to.
+   * @param {funtion(string,?string=,number=)} fn
+   * @param {function()=} opt_flush
+   * @export
+   */
+  global.AMP.setTickFunction = (fn, opt_flush) => {
+    const perf = performanceFor(global);
+    perf.setTickFunction(fn, opt_flush);
+  };
+
   // Execute asynchronously scheduled elements.
   for (let i = 0; i < preregisteredElements.length; i++) {
-    let fn = preregisteredElements[i];
+    const fn = preregisteredElements[i];
     fn(global.AMP);
   }
 }
@@ -118,7 +151,7 @@ export function adopt(global) {
  */
 export function registerForUnitTest(win) {
   for (let i = 0; i < elementsForTesting.length; i++) {
-    let element = elementsForTesting[i];
+    const element = elementsForTesting[i];
     registerElement(win, element.name, element.implementationClass);
   }
 }

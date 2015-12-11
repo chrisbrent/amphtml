@@ -16,9 +16,12 @@
 
 import './polyfills';
 
-import {historyFor} from './history';
-import {viewerFor} from './viewer';
+import {installHistoryService} from './service/history-impl';
 import {installPullToRefreshBlocker} from './pull-to-refresh';
+import {performanceFor} from './performance';
+import {viewerFor} from './viewer';
+import {vsyncFor} from './vsync';
+import {templatesFor} from './template';
 
 import {installAd} from '../builtins/amp-ad';
 import {installGlobalClickListener} from './document-click';
@@ -39,10 +42,15 @@ import {maybeValidate} from './validator-integration';
 try {
   // Should happen first.
   installErrorReporting(window);  // Also calls makeBodyVisible on errors.
+  const perf = performanceFor(window);
+
+  perf.tick('is');
   installStyles(document, cssText, () => {
     try {
-      historyFor(window);
+      installHistoryService(window);
       viewerFor(window);
+      vsyncFor(window);
+      templatesFor(window);
 
       installImg(window);
       installAd(window);
@@ -59,6 +67,10 @@ try {
       maybeValidate(window);
     } finally {
       makeBodyVisible(document);
+      perf.tick('e_is');
+      // TODO(erwinm): move invocation of the `flush` method when we have the
+      // new ticks in place to batch the ticks properly.
+      perf.flush();
     }
   }, /* opt_isRuntimeCss */ true);
 } catch (e) {

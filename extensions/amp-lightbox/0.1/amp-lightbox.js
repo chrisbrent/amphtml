@@ -32,7 +32,8 @@ class AmpLightbox extends AMP.BaseElement {
 
   /** @override */
   isReadyToBuild() {
-    return this.element.firstChild != null;
+    // Always defer building until DOMReady.
+    return false;
   }
 
   /** @override */
@@ -46,20 +47,19 @@ class AmpLightbox extends AMP.BaseElement {
       right: 0
     });
 
-    let children = this.getRealChildren();
+    const children = this.getRealChildren();
 
     /** @private {!Element} */
     this.container_ = document.createElement('div');
     this.applyFillContent(this.container_);
     this.element.appendChild(this.container_);
-    children.forEach((child) => {
+    children.forEach(child => {
       this.container_.appendChild(child);
     });
 
-    let gestures = Gestures.get(this.element);
-    // TODO(dvoytenko): configure how to close. Or maybe leave it completely
-    // up to "on" element.
-    this.element.addEventListener('click', () => this.close());
+    this.registerAction('close', this.close.bind(this));
+
+    const gestures = Gestures.get(this.element);
     gestures.onGesture(TapRecognizer, () => this.close());
     gestures.onGesture(SwipeXYRecognizer, () => {
       // Consume to block scroll events and side-swipe.
@@ -76,11 +76,16 @@ class AmpLightbox extends AMP.BaseElement {
 
   /** @override */
   activate() {
+    /**  @private {function(this:AmpLightbox, Event)}*/
+    this.boundCloseOnEscape_ = this.closeOnEscape_.bind(this);
+    this.getWin().document.documentElement.addEventListener(
+        'keydown', this.boundCloseOnEscape_);
     this.requestFullOverlay();
+    this.getViewport().resetTouchZoom();
     this.element.style.display = '';
     this.element.style.opacity = 0;
 
-    // TODO(dvoytenko): use new animatons support instead.
+    // TODO(dvoytenko): use new animations support instead.
     this.element.style.transition = 'opacity 0.1s ease-in';
     requestAnimationFrame(() => {
       this.element.style.opacity = '';
@@ -89,9 +94,20 @@ class AmpLightbox extends AMP.BaseElement {
     this.scheduleLayout(this.container_);
     this.updateInViewport(this.container_, true);
 
-    this.getHistory_().push(this.close.bind(this)).then((historyId) => {
+    this.getHistory_().push(this.close.bind(this)).then(historyId => {
       this.historyId_ = historyId;
     });
+  }
+
+  /**
+   * Handles closing the lightbox when the ESC key is pressed.
+   * @param {!Event} event.
+   * @private
+   */
+  closeOnEscape_(event) {
+    if (event.keyCode == 27) {
+      this.close();
+    }
   }
 
   close() {
@@ -100,6 +116,9 @@ class AmpLightbox extends AMP.BaseElement {
     if (this.historyId_ != -1) {
       this.getHistory_().pop(this.historyId_);
     }
+    this.getWin().document.documentElement.removeEventListener(
+        'keydown', this.boundCloseOnEscape_);
+    this.boundCloseOnEscape_ = null;
   }
 
   getHistory_() {

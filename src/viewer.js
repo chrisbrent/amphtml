@@ -23,8 +23,8 @@ import {parseQueryString, removeFragment} from './url';
 import {platform} from './platform';
 
 
-let TAG_ = 'Viewer';
-let SENTINEL_ = '__AMP__';
+const TAG_ = 'Viewer';
+const SENTINEL_ = '__AMP__';
 
 
 /**
@@ -47,7 +47,8 @@ export const ViewportType = {
    * This is AMP-specific type and doesn't come from viewer. This is the type
    * that AMP sets when Viewer has requested "natural" viewport on a iOS
    * device.
-   * See https://docs.google.com/document/d/1YjFk_B6r97CCaQJf2nXRVuBOuNi_3Fn87Zyf1U7Xoz4/edit
+   * See:
+   * https://github.com/ampproject/amphtml/blob/master/spec/amp-html-layout.md
    * and {@link ViewportBindingNaturalIosEmbed_} for more details.
    */
   NATURAL_IOS_EMBED: 'natural-ios-embed'
@@ -87,6 +88,9 @@ export class Viewer {
   constructor(win) {
     /** @const {!Window} */
     this.win = win;
+
+    /** @private @const {boolean} */
+    this.isEmbedded_ = (this.win.parent && this.win.parent != this.win);
 
     /** @const {!DocumentState} */
     this.docState_ = documentStateFor(window);
@@ -167,7 +171,7 @@ export class Viewer {
 
     this.viewportType_ = this.params_['viewportType'] || this.viewportType_;
     // Configure scrolling parameters when AMP is embeded in a viewer on iOS.
-    if (this.viewportType_ == ViewportType.NATURAL && this.win.parent &&
+    if (this.viewportType_ == ViewportType.NATURAL && this.isEmbedded_ &&
             platform.isIos()) {
       this.viewportType_ = ViewportType.NATURAL_IOS_EMBED;
     }
@@ -195,8 +199,8 @@ export class Viewer {
     });
 
     // Remove hash - no reason to keep it around, but only when embedded.
-    if (this.win.parent && this.win.parent != this.win) {
-      var newUrl = removeFragment(this.win.location.href);
+    if (this.isEmbedded_) {
+      const newUrl = removeFragment(this.win.location.href);
       if (newUrl != this.win.location.href && this.win.history.replaceState) {
         this.win.history.replaceState({}, '', newUrl);
         log.fine(TAG_, 'replace url:' + this.win.location.href);
@@ -209,10 +213,18 @@ export class Viewer {
    * name or "undefined" if the parameter wasn't defined at startup time.
    * @param {string} name
    * @return {string|undefined}
-   * @expose
+   * @export
    */
   getParam(name) {
     return this.params_[name];
+  }
+
+  /**
+   * Whether the document is embedded in a iframe.
+   * @return {boolean}
+   */
+  isEmbedded() {
+    return this.isEmbedded_;
   }
 
   /**
@@ -414,7 +426,7 @@ export class Viewer {
    * @param {boolean} awaitResponse
    * @return {(!Promise<*>|undefined)}
    * @package
-   * @expose
+   * @export
    */
   receiveMessage(eventType, data, awaitResponse) {
     if (eventType == 'viewport') {
@@ -460,15 +472,15 @@ export class Viewer {
    * messages to the viewer.
    * @param {function(string, *, boolean):(!Promise<*>|undefined)} deliverer
    * @package
-   * @expose
+   * @export
    */
   setMessageDeliverer(deliverer) {
     assert(!this.messageDeliverer_, 'message deliverer can only be set once');
     this.messageDeliverer_ = deliverer;
     if (this.messageQueue_.length > 0) {
-      let queue = this.messageQueue_.slice(0);
+      const queue = this.messageQueue_.slice(0);
       this.messageQueue_ = [];
-      queue.forEach((message) => {
+      queue.forEach(message => {
         this.messageDeliverer_(message.eventType, message.data, false);
       });
     }
@@ -519,8 +531,8 @@ export class Viewer {
  * @private
  */
 export function parseParams_(str, allParams) {
-  let params = parseQueryString(str);
-  for (let k in params) {
+  const params = parseQueryString(str);
+  for (const k in params) {
     allParams[k] = params[k];
   }
 }
@@ -531,7 +543,7 @@ export function parseParams_(str, allParams) {
  *   newStackIndex: number
  * }}
  */
-var ViewerHistoryPoppedEvent;
+let ViewerHistoryPoppedEvent;
 
 
 /**
@@ -543,5 +555,3 @@ export function viewerFor(window) {
     return new Viewer(window);
   });
 };
-
-export const viewer = viewerFor(window);
